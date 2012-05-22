@@ -7,22 +7,28 @@
  interpolation from: https://github.com/openframeworks/openFrameworks/tree/develop/examples/graphics/lutFilterExample
  */
 
-float inc=0;
+
 PImage img;
 color[][][] lut=new color[32][32][32];
 String lutLines[];
 int ind;
+boolean lutHasHeader=true;
 void setup() {
   size(800, 700, P3D);
   img=loadImage("patitos.jpg");
 
-  lutLines= loadStrings("/LUTs/vintage2.cube");
+  lutLines= loadStrings("/LUTs/odd1.cube");
   println(lutLines.length);
-
+  
+  if(lutHasHeader){
+  ind=5;
+  }
+  else{
   ind=0;
-  for (int i=0;i<32;i++) {
+  }
+  for (int k=0;k<32;k++) {
     for (int j=0;j<32;j++) {
-      for (int k=0;k<32;k++) {
+      for (int i=0;i<32;i++) {
         String lutSingleLine=lutLines[ind];
         String[] components=new String[3];
         components=split(lutSingleLine, ' ');
@@ -93,7 +99,7 @@ void draw() {
 
   pushMatrix();  
   translate(400, 320);
-  inc+=.1;
+ 
   for (int i=0;i<32;i++) {
     for (int j=0;j<32;j++) {
       for (int k=0;k<32;k++) {

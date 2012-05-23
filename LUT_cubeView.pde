@@ -7,39 +7,33 @@
  interpolation from: https://github.com/openframeworks/openFrameworks/tree/develop/examples/graphics/lutFilterExample
  */
 
-
+int fileIndex=0;
 PImage img;
+PImage processed;
 color[][][] lut=new color[32][32][32];
 String lutLines[];
 int ind;
 boolean lutHasHeader=true;
+String lutFile;
+File[] files;
 void setup() {
   size(800, 700, P3D);
-  img=loadImage("patitos.jpg");
+  String file="patitos.jpg";
+  String dir=sketchPath+"\\data\\LUTS"; 
+  File filex = new File(dir);
+  files = filex.listFiles();
 
-  lutLines= loadStrings("/LUTs/odd1.cube");
-  println(lutLines.length);
-  
-  if(lutHasHeader){
-  ind=5;
-  }
-  else{
-  ind=0;
-  }
-  for (int k=0;k<32;k++) {
-    for (int j=0;j<32;j++) {
-      for (int i=0;i<32;i++) {
-        String lutSingleLine=lutLines[ind];
-        String[] components=new String[3];
-        components=split(lutSingleLine, ' ');
-        lut[i][j][k]=color(int(float(components[0])*255), int(float(components[1])*255), int(float(components[2])*255));
-        ind++;
-      }
-    }
-  }
+
+  println(files);
+
+  img=loadImage("patitos.jpg");
+  processed=createImage(img.width, img.height, RGB);
+  lutFile="LUTS/"+files[fileIndex].getName();
+
+  lutLoad(lutFile);  
   background(0);
   noStroke();
-  noLoop();
+  //noLoop();
 }
 
 
@@ -49,12 +43,14 @@ void draw() {
   image(img, 0, 0); 
   img.loadPixels();   
 
+
   for (int i=0;i<img.pixels.length;i++) {
     color c=img.pixels[i];
 
     int rc=(int)red(c);
     int gc=(int)green(c);
     int bc=(int)blue(c);     
+
 
     int ri=rc/8;
     int gi=gc/8;
@@ -63,6 +59,9 @@ void draw() {
     int rf=ri+1;
     int gf=gi+1;
     int bf=bi+1;
+    if (rf>31)rf=31;
+    if (gf>31)gf=31;
+    if (bf>31)bf=31;
 
     float amountR = (rc % 8) / 8.0f;
     float amountG = (gc % 8) / 8.0f;
@@ -73,12 +72,15 @@ void draw() {
     blue(lut[ri][gi][bi])+amountR*(blue(lut[rf][gf][bf])-blue(lut[ri][gi][bi]))
       );
 
-    img.pixels[i]=c;
+    processed.pixels[i]=c;
   }  
 
 
-  img.updatePixels(); 
-  image(img, width/2, 0);
+  processed.updatePixels(); 
+
+  image(processed, width/2, 0);
+
+
   pushMatrix();
   translate(0, 320);
   for (int i=0;i<32;i++) {
@@ -99,7 +101,7 @@ void draw() {
 
   pushMatrix();  
   translate(400, 320);
- 
+
   for (int i=0;i<32;i++) {
     for (int j=0;j<32;j++) {
       for (int k=0;k<32;k++) {
@@ -155,13 +157,66 @@ void draw() {
     }
   }
   popMatrix();
+  fill(255);
+  text(files[fileIndex].getName(),400,500);
 }
 
 
 
 
+
+
+void lutLoad(String lFile) {
+
+  lutLines= loadStrings(lFile);
+  println(lutLines.length);
+
+  if (lutHasHeader) {
+    ind=5;
+  }
+  else {
+    ind=0;
+  }
+
+  for (int k=0;k<32;k++) {
+    for (int j=0;j<32;j++) {
+      for (int i=0;i<32;i++) {
+        String lutSingleLine=lutLines[ind];
+        String[] components=new String[3];
+        components=split(lutSingleLine, ' ');
+        lut[i][j][k]=color(int(float(components[0])*255), int(float(components[1])*255), int(float(components[2])*255));
+        ind++;
+      }
+    }
+  }  
+  println("lut "+lFile+ "loaded");
+}
+
+
 void keyPressed() {
-  if (key==' ') {
+  if (key==CODED) {
+    if (keyCode==UP) {
+      if (fileIndex<files.length-1) {
+        fileIndex++;
+      }  
+      else {
+        fileIndex=0;
+      }
+      lutFile="LUTS/"+files[fileIndex].getName();
+      lutLoad(lutFile);
+    }
+    else if (keyCode==DOWN) {
+      if (fileIndex>0) {
+        fileIndex--;
+      }  
+      else {
+        fileIndex=files.length-1;
+      }
+      lutFile="LUTS/"+files[fileIndex].getName();
+      lutLoad(lutFile);
+    }
+  }
+  else if (key==' ') {
     saveFrame(int(random(1000, 9999))+".jpg");
   }
 }

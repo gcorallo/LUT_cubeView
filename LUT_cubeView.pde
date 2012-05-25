@@ -15,6 +15,7 @@ String lutLines[];
 int ind;
 boolean lutHasHeader=true;
 String lutFile;
+PFont font;
 File[] files;
 void setup() {
   size(800, 700, P3D);
@@ -23,9 +24,6 @@ void setup() {
   File filex = new File(dir);
   files = filex.listFiles();
 
-
-  println(files);
-
   img=loadImage("patitos.jpg");
   processed=createImage(img.width, img.height, RGB);
   lutFile="LUTS/"+files[fileIndex].getName();
@@ -33,7 +31,10 @@ void setup() {
   lutLoad(lutFile);  
   background(0);
   noStroke();
-  //noLoop();
+  
+  font = loadFont("ArialMT-18.vlw");
+  textFont(font, 16);
+  textMode(SCREEN);
 }
 
 
@@ -169,7 +170,6 @@ void draw() {
 void lutLoad(String lFile) {
 
   lutLines= loadStrings(lFile);
-  println(lutLines.length);
 
   if (lutHasHeader) {
     ind=5;
